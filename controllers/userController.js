@@ -1,4 +1,5 @@
 const User = require('../models/user')
+const { ObjectId } = require('mongoose').Types;
 
 module.exports = {
   getUsers(req, res) {
@@ -7,7 +8,7 @@ module.exports = {
       .catch((err) => res.status(500).json(err))
   },
   getSingleUser(req, res) {
-    User.findOne({ _id: req.params.userId })
+    User.findOne({ _id: ObjectId(req.params.userId) })
       .then((user) =>
         !user
           ? res.status(404).json({ message: 'No user with that ID' })
@@ -53,17 +54,20 @@ module.exports = {
       .catch((err) => res.status(500).json(err));
   },
   addFriend(req, res) {
+    console.log('add friend route')
     User.findOneAndUpdate(
       { _id: req.params.userId },
-      { $addToSet: { friends: req.params.friendId } },
+      { $addToSet: { friends: ObjectId(req.params.friendId) } },
       { runValidators: true, new: true }
     )
       .then((user) =>
         !user
           ? res.status(404).json({ message: 'No user with this id!' })
-          : res.json(video)
+          : res.json(user)
       )
-      .catch((err) => res.status(500).json(err));
+      .catch((err) => {
+        console.log(err)
+        res.status(500).json(err)});
   },
 
   removeFriend(req, res) {
